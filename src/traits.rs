@@ -7,6 +7,7 @@ pub(crate) trait Morskable<const DIGIT_COUNT: usize>: Sized {
 macro_rules! impl_morskable {
     ([$(($t:ty, $digit_count:expr)),*]) => {
         $(impl Morskable<$digit_count> for $t {
+            #[inline]
             fn hex_digits(&self) -> [u8; $digit_count] {
                 let mut digits = [0_u8; $digit_count];
                 let mut start: i32 = 4 * ($digit_count - 1);
