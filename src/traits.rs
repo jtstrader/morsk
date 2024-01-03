@@ -1,12 +1,20 @@
 use crate::Word;
 
-pub(crate) trait Morskable<const DIGIT_COUNT: usize>: Sized {
+/// Private module for trait sealing.
+mod trait_seal {
+    pub trait Sealed {}
+}
+
+pub trait Morskable<const DIGIT_COUNT: usize>: Sized + trait_seal::Sealed {
     fn hex_digits(&self) -> [u8; DIGIT_COUNT];
 }
 
 macro_rules! impl_morskable {
     ([$(($t:ty, $digit_count:expr)),*]) => {
-        $(impl Morskable<$digit_count> for $t {
+        $(
+        impl trait_seal::Sealed for $t {}
+
+        impl Morskable<$digit_count> for $t {
             #[inline]
             fn hex_digits(&self) -> [u8; $digit_count] {
                 let mut digits = [0_u8; $digit_count];
@@ -17,7 +25,8 @@ macro_rules! impl_morskable {
                 });
                 digits
             }
-        })*
+        }
+        )*
     };
 }
 
