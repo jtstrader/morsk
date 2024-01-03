@@ -27,26 +27,9 @@ where
     }
 }
 
-/// Get the hex digits of a `u16`.
-fn get_hex(w: u16) -> [u8; 4] {
-    let digit_1 = (w & 0xF000) >> 12;
-    let digit_2 = (w & 0x0F00) >> 8;
-    let digit_3 = (w & 0x00F0) >> 4;
-    let digit_4 = w & 0x000F;
-
-    [digit_1, digit_2, digit_3, digit_4].map(|digit| digit as u8)
-}
-
 #[cfg(test)]
 mod tests {
     use super::*;
-
-    #[test]
-    fn hex_from_u16() {
-        let w = 0xABCD;
-        let digits = get_hex(w);
-        assert_eq!(digits, [0xA, 0xB, 0xC, 0xD]);
-    }
 
     #[test]
     fn word_struct_from_u16() {
