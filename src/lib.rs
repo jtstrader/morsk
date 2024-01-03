@@ -1,4 +1,4 @@
-mod traits;
+pub mod traits;
 
 use traits::Morskable;
 
