@@ -1,4 +1,8 @@
-on: push
+on:
+  push:
+    paths:
+      - "morsk/**.rs"
+      - "morskros/**.rs"
 name: Build Library
 jobs:
   build_morsk:
