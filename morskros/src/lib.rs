@@ -1,5 +1,6 @@
 extern crate proc_macro;
 use proc_macro::TokenStream;
+use std::convert::{TryFrom, TryInto};
 
 use quote::quote;
 use syn::spanned::Spanned;
@@ -11,6 +12,23 @@ use syn::{
 enum MvhType {
     Inclusive,
     Exclusive,
+    Single,
+}
+
+impl TryFrom<BinOp> for MvhType {
+    type Error = syn::Error;
+
+    fn try_from(value: BinOp) -> std::result::Result<Self, Self::Error> {
+        match value {
+            BinOp::BitOr(_) => Ok(MvhType::Inclusive),
+            BinOp::BitXor(_) => Ok(MvhType::Exclusive),
+            BinOp::BitAnd(_) => Ok(MvhType::Single),
+            _ => Err(syn::Error::new(
+                value.span(),
+                "only the '|', '^', and '&' operators are supported",
+            )),
+        }
+    }
 }
 
 struct MvhInput {
@@ -33,22 +51,11 @@ impl Parse for MvhInput {
         // parse it instead as a LitString which is the only other supported type.
         let variadic_hex: LitStr = extract_variadic_hex(input)?;
 
-        match mvh_type {
-            BinOp::BitOr(_) => Ok(MvhInput {
-                input_word,
-                variadic_hex,
-                ty: MvhType::Inclusive,
-            }),
-            BinOp::BitXor(_) => Ok(MvhInput {
-                input_word,
-                variadic_hex,
-                ty: MvhType::Exclusive,
-            }),
-            _ => Err(syn::Error::new(
-                mvh_type.span(),
-                "only '|' and '^' are supported for mvh",
-            )),
-        }
+        Ok(MvhInput {
+            input_word,
+            variadic_hex,
+            ty: mvh_type.try_into()?,
+        })
     }
 }
 
@@ -73,16 +80,27 @@ fn extract_variadic_hex(input: ParseStream) -> Result<LitStr> {
     }
 }
 
-/// `mvh` - Match On Variadic Hex
+/// A macro for matching variadic hex.
 ///
 /// This macro takes a word on the left-hand side and a hexadecimal on the right hand side. The
 /// hexadecimal can contain any alphanumeric character. Any character used that is not in Base16 will
 /// be treated as a *wildcard*, and will be matched with any other of the same wildcard. `mvh`, like
-/// other Morsk matching macros, support two modes: inclusive and exclusive matching.
+/// other Morsk matching macros, support three modes: inclusive, exclusive, and single wildcare matching.
 ///   - Inclusive matching (`word | HEX`) allows two or more unique wildcards to represent the same
 ///     value in hex.
 ///   - Exclusive matching (`word ^ HEX`) rejects two or more unique wildcards attempting to represent
 ///     the same value in hex.
+///   - Single matching (`word & HEX`) allows only one wildcard to be used, but each instance
+///     of the wildcard can represent any value.
+///
+/// Details of how these matches work can be found under the documentation on the [`Word`](morsk::Word)
+/// struct.
+///
+/// ## Caveats
+/// Due to Rust's lexicographical grammar, matching on `0xX...` for any non-hex character `X` is invalid syntax,
+/// even for procedural macros. Therefore, if you want to match the left-most bit, you will need to put it in
+/// quotes. In any other case, you can use your wildcards wherever while writing the number as a series of hex
+/// digits (`0xABXYZDEF1234`).
 ///
 /// # Examples
 ///
@@ -97,14 +115,14 @@ fn extract_variadic_hex(input: ParseStream) -> Result<LitStr> {
 /// assert!(mvh!(w32 | "0xXXB12349Y"));
 /// ```
 ///
-/// Using exclusive matching with `mvh.
+/// Using exclusive matching with `mvh`.
 #[proc_macro]
 pub fn mvh(input: TokenStream) -> TokenStream {
     let input = parse_macro_input!(input as MvhInput);
-
     let (word, hex) = (input.input_word, input.variadic_hex);
     match input.ty {
         MvhType::Inclusive => quote!(#word.inclusive_morsk(#hex)).into(),
         MvhType::Exclusive => quote!(#word.exclusive_morsk(#hex)).into(),
+        MvhType::Single => quote!(#word.single_morsk(#hex)).into(),
     }
 }

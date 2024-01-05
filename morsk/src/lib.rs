@@ -27,6 +27,10 @@ where
     pub fn exclusive_morsk(&self, pattern: &str) -> bool {
         true
     }
+
+    pub fn single_morsk(&self, pattern: &str) -> bool {
+        true
+    }
 }
 
 impl<T, const HEX_DIGITS: usize> Deref for Word<T, HEX_DIGITS>

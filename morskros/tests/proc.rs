@@ -12,3 +12,9 @@ fn exclusive_morsk() {
     let w = Word::from(0xABBD_u16);
     assert!(mvh!(w ^ 0xAXXD));
 }
+
+#[test]
+fn single_morsk() {
+    let w = Word::from(0xABCD_u16);
+    assert!(mvh!(w & 0xANNN));
+}
