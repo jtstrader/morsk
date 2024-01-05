@@ -5,6 +5,7 @@
       <sourceFolder url="file://$MODULE_DIR$/morsk/src" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/morsk/tests" isTestSource="true" />
       <sourceFolder url="file://$MODULE_DIR$/morskros/src" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/morskros/tests" isTestSource="true" />
       <excludeFolder url="file://$MODULE_DIR$/morsk/target" />
       <excludeFolder url="file://$MODULE_DIR$/morskros/target" />
     </content>
