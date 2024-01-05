@@ -13,6 +13,8 @@ where
     T: Morskable<HEX_DIGITS>,
 {
     word: T,
+
+    #[allow(dead_code)]
     hex_digits: [u8; HEX_DIGITS],
 }
 
@@ -20,15 +22,15 @@ impl<T, const HEX_DIGITS: usize> Word<T, HEX_DIGITS>
 where
     T: Morskable<HEX_DIGITS>,
 {
-    pub fn inclusive_morsk(&self, pattern: &str) -> bool {
+    pub fn inclusive_morsk(&self, _pattern: &str) -> bool {
         true
     }
 
-    pub fn exclusive_morsk(&self, pattern: &str) -> bool {
+    pub fn exclusive_morsk(&self, _pattern: &str) -> bool {
         true
     }
 
-    pub fn single_morsk(&self, pattern: &str) -> bool {
+    pub fn single_morsk(&self, _pattern: &str) -> bool {
         true
     }
 }
