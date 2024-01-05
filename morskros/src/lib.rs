@@ -59,6 +59,8 @@ impl Parse for MvhInput {
     }
 }
 
+/// Extract the variadic hex string or integer literal from the macro input. Error on
+/// invalid type or invalid string (e.g., `0xAB0+_-4XY` is not parsable).
 fn extract_variadic_hex(input: ParseStream) -> Result<LitStr> {
     let lookahead = input.lookahead1();
     if lookahead.peek(LitInt) {
@@ -74,9 +76,35 @@ fn extract_variadic_hex(input: ParseStream) -> Result<LitStr> {
             span,
         ))
     } else if lookahead.peek(LitStr) {
-        input.parse()
+        validate_hex(input.parse()?)
     } else {
         Err(lookahead.error())
+    }
+}
+
+/// Validate a provided LitStr to ensure it is a valid hex string. Error on invalid hex input.
+fn validate_hex(hex: LitStr) -> Result<LitStr> {
+    // Ensure that string begins with 0x for signifying hex.
+    let value = hex.value();
+    if value.len() < 2 || value[0..2] != *"0x" {
+        return Err(syn::Error::new(
+            hex.span(),
+            "provided hex did not begin with '0x'",
+        ));
+    } else if value.len() < 3 {
+        return Err(syn::Error::new(
+            hex.span(),
+            "provided hex has no value, only prefix '0x'",
+        ));
+    }
+
+    // Non-alphanumeric chars.
+    match value.chars().all(char::is_alphanumeric) {
+        true => Ok(hex),
+        false => Err(syn::Error::new(
+            hex.span(),
+            "provided hex included non-alphanumeric characters",
+        )),
     }
 }
 
