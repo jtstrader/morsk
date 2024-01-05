@@ -1,0 +1,36 @@
+on: push
+name: Clippy Check
+jobs:
+  morsk:
+    name: Morsk
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Install stable toolchain
+        uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
+          default: true
+          components: clippy
+
+      - name: Check Morsk
+        run: cargo clippy --all-features --manifest-path ./morsk/Cargo.toml -- -Dwarnings
+
+  morskros:
+    name: Morsk Macros
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Install stable toolchain
+        uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
+          default: true
+          components: clippy
+
+      - name: Check Morsk Macros
+        run: cargo clippy --all-features --manifest-path ./morskros/Cargo.toml -- -Dwarnings

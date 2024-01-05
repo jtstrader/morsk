@@ -1,0 +1,44 @@
+on: push
+name: Build Library
+jobs:
+  build_morsk:
+    name: Build Morsk
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Install stable toolchain
+        uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
+          default: true
+
+      - name: Build Morsk
+        working-directory: ./morsk
+        run: cargo build --release --all-features
+
+      - name: Test Morsk
+        working-directory: ./morsk
+        run: cargo test
+
+  build_morskros:
+    name: Build Morsk Macros
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Install stable toolchain
+        uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
+          default: true
+
+      - name: Build Morsk macros
+        working-directory: ./morskros
+        run: cargo build --release --all-features
+
+      - name: Test Morsk macros
+        working-directory: ./morskros
+        run: cargo test
