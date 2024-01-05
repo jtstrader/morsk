@@ -8,14 +8,14 @@ the matching that can be used to extract the desired values.
 use morsk::{self, Word};
 
 fn main() -> morsk::Result<()> {
-    let w = Word::from(0xABCD_u16);
+    let w = Word::from(0xAF25_u16);
 
     // Check to see if the provided word matches any hex
     // with an A at the beginning and a 5 at the end.
-    let match_res = mvh!(w | 0xAXY5);
+    let match_res = mvh!(w | 0xAXY5)?;
     if let Some(res) = match_res {
-        println!("{}", res['X']); // B
-        println!("{}", res['Y']); // C
+        println!("{}", res['X']); // F
+        println!("{}", res['Y']); // 2
     }
 }
 ```
